@@ -1,0 +1,35 @@
+CS 646
+Assignment 4
+InstaPost
+	- Networking
+	- Photos
+Requirements:
+	- Can handle multiple users
+	- Users can create accounts
+		- provide email
+		- name
+		- nick name
+	- Users can make posts:
+		- Photo
+			- must be able to upload and download a photo
+		- Optional text and/or hashtag
+	- Users can see ALL other users
+	- Users can select a particular user and see all their posts
+		- Select that post and download the photo
+	- Users can see ALL hashtags
+		- Select that post and download the photo
+	- Users can select a particular hashtag and see all posts associated with that hashtag
+
+Programming Concepts / Lectures
+	- Use Firebase/Cloud Firestore for user information/ text / hashtags
+		- Lecture 15: SQLite
+		- Lecture 16: Room
+		- Lecture 17: BaaS
+	- Network - client / server management
+		- Lecture 13: Concurrency, HTTP
+		- Lecture 14: Network
+	- Images/image upload and download
+		- Lecture 18: Patterns, Resources
+
+My Notes:
+	- Possibly Observer pattern / React? 
