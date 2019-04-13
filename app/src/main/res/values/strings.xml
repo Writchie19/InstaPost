@@ -3,4 +3,13 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="count">count</string>
+    <string name="name">name</string>
+    <string name="centered_via_layout_gravity">Centered via Layout Gravity</string>
+    <string name="index">Index</string>
+    <string name="Name">Name</string>
+    <string name="nickname">NickName</string>
+    <string name="description">Description:</string>
+    <string name="users_post_images">Users Post Images</string>
+    <string name="textview">TextView</string>
 </resources>
