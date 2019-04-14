@@ -7,9 +7,9 @@ import android.widget.TextView
 
 class PostRecycleAdapter : RecyclerView.Adapter<PostRecycleHolder> {
     var postList : List<Post>? = null
-    var activity : MainActivity? = null
+    var activity : NavigationActivity? = null
 
-    constructor(posts: List<Post>, activity : MainActivity) {
+    constructor(posts: List<Post>, activity : NavigationActivity) {
         this.postList = posts
         this.activity = activity
     }

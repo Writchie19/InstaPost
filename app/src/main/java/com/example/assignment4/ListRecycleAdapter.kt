@@ -6,9 +6,9 @@ import android.view.ViewGroup
 
 class ListRecycleAdapter : RecyclerView.Adapter<ListRecycleHolder> {
     var itemList : List<String>? = null
-    var activity : MainActivity? = null
+    var activity : NavigationActivity? = null
 
-    constructor(itemList: List<String>, activity : MainActivity) {
+    constructor(itemList: List<String>, activity : NavigationActivity) {
         this.itemList = itemList
         this.activity = activity
     }
