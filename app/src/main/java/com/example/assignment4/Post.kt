@@ -14,7 +14,7 @@ class Post {
         this.description = description
     }
 
-    fun setImage(image: Uri) {
+    fun setImageUri(image: Uri) {
         this.image = image
     }
 

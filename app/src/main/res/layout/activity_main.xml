@@ -29,7 +29,7 @@
             android:id="@+id/edit_password"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toEndOf="@+id/password"
             app:layout_constraintEnd_toEndOf="@+id/password" android:layout_marginBottom="108dp"
-            app:layout_constraintHorizontal_bias="0.507"/>
+            app:layout_constraintHorizontal_bias="0.507" android:autoText="true"/>
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,21 +37,23 @@
             android:ems="10"
             android:id="@+id/edit_email" android:layout_marginBottom="52dp"
             app:layout_constraintBottom_toTopOf="@+id/edit_password" app:layout_constraintStart_toEndOf="@+id/password"
-            app:layout_constraintEnd_toEndOf="@+id/password"/>
+            app:layout_constraintEnd_toEndOf="@+id/password" android:autoText="true"/>
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/edit_nick_name" android:layout_marginBottom="52dp"
-            app:layout_constraintBottom_toTopOf="@+id/edit_email" app:layout_constraintStart_toStartOf="@+id/nickname"/>
+            app:layout_constraintBottom_toTopOf="@+id/edit_email" app:layout_constraintStart_toStartOf="@+id/nickname"
+            android:autoText="true"/>
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/edit_name" android:layout_marginBottom="52dp"
-            app:layout_constraintBottom_toTopOf="@+id/edit_nick_name" app:layout_constraintStart_toStartOf="@+id/name"/>
+            app:layout_constraintBottom_toTopOf="@+id/edit_nick_name" app:layout_constraintStart_toStartOf="@+id/name"
+            android:autoText="true"/>
     <TextView
             android:text="@string/name"
             android:layout_width="wrap_content"

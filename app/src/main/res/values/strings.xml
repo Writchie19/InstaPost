@@ -33,4 +33,9 @@
     <string name="log_out">Log Out</string>
     <string name="username">UserName</string>
     <string name="post">Post</string>
+    <string name="write_a_description">Write a Description:</string>
+    <string name="users">Users</string>
+    <string name="hashtags">Hashtags</string>
+    <string name="my_posts">My Posts</string>
+    <string name="all_posts">All Posts</string>
 </resources>
