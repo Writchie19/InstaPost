@@ -28,7 +28,6 @@
     <string name="nick_name">Nick Name</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_in">Sign In</string>
-    <string name="instapost">InstaPost</string>
     <string name="posts">Posts</string>
     <string name="log_out">Log Out</string>
     <string name="username">UserName</string>
@@ -38,4 +37,9 @@
     <string name="hashtags">Hashtags</string>
     <string name="my_posts">My Posts</string>
     <string name="all_posts">All Posts</string>
+    <string name="list_of_users">List of Users</string>
+    <string name="list_of_hashtags">List of Hashtags</string>
+    <string name="everyone">Everyone</string>
+    <string name="instapost">InstaPost</string>
+    <string name="back">Back</string>
 </resources>

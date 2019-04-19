@@ -1,3 +1,9 @@
+/*
+William Ritchie
+CS 646
+Assignment 4
+4/18/19
+ */
 package com.example.assignment4
 
 import android.support.v7.widget.RecyclerView
@@ -16,6 +22,7 @@ class PostRecycleHolder : RecyclerView.ViewHolder{
         image = itemView.findViewById(R.id.imageView)
     }
 
+    // Updates the UI information with the post specific information
     fun bindPost(post : Post) {
         nickNameView?.text = post.nickName
         descriptionView?.text = post.description

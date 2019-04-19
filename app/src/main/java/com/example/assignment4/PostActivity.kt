@@ -1,3 +1,9 @@
+/*
+William Ritchie
+CS 646
+Assignment 4
+4/18/19
+ */
 package com.example.assignment4
 
 import android.app.Activity
@@ -12,9 +18,12 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_post.*
 import java.lang.Math.abs
 
+const val REQUEST_IMAGE_OPEN = 1 // Used for the result from the implicit intent, accessing the gallery for posting an image
+
 class PostActivity : AppCompatActivity() {
 
-    private var file: Uri? = null
+    private var file: Uri? = null // Keeps track of URI information of the image the user wishes to post
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post)
@@ -39,14 +48,18 @@ class PostActivity : AppCompatActivity() {
     private fun post() {
         if (file != null) {
             val mStorageRef = FirebaseStorage.getInstance().reference
+            // This will store the new image in firebase storage with a mostly unique number based on the paths hashcode
+            // Of course this isnt perfect and would need to be replaced with something a little more perfect like for
+            // Example the next prime number or something
             val imagePath = "users/${intent.extras?.getString("email")}/${abs(file?.path.hashCode())}.jpg"
             val imageRef = mStorageRef.child(imagePath)
 
+            // Upload the image to firebase storage
             imageRef.putFile(file as Uri)
                 .addOnSuccessListener{ taskSnapshot ->
                     // Get a URL to the uploaded content
                     val downloadUrl = taskSnapshot.totalByteCount
-                    Log.i("WCR", downloadUrl.toString())
+                    Log.i("WCR", "upload post success")
                 }
                 .addOnFailureListener{
                     // Handle unsuccessful uploads
@@ -54,6 +67,7 @@ class PostActivity : AppCompatActivity() {
                     Log.i("WCR", "Upload FAIL")
                 }
 
+            // Update firebase firestore with the new post information
             val db = FirebaseFirestore.getInstance()
             val post = HashMap<String, Any>()
             post["description"] = edit_description.text.toString()
@@ -65,11 +79,12 @@ class PostActivity : AppCompatActivity() {
                 .document()
                 .set(post)
 
-
+            // Notify the navigation activity of the results from the post
             val result = intent
             result.putExtra("description", edit_description.text.toString())
             Log.i("WCR", "IMAGEPATH POST" + imagePath)
             result.putExtra("imagePath", imagePath)
+            result.putExtra("hashtag", getHashTags())
             setResult(Activity.RESULT_OK, result)
             finish()
         }
@@ -78,6 +93,7 @@ class PostActivity : AppCompatActivity() {
         }
     }
 
+    // Parses through the description the user has written for hashtags
     private fun getHashTags(): ArrayList<String> {
         val hashtags = arrayListOf<String>()
         val tokens = edit_description.text.toString().split(" ")
@@ -92,17 +108,9 @@ class PostActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_OPEN && resultCode == Activity.RESULT_OK) {
             file = data?.data as Uri
             imageView.setImageURI(file)
-            Log.i("WCR", file?.path)
-
-            //val hardFile = Uri.fromFile(File(file.path))
-            //Log.i("WCR", hardFile.path)
-            // Do work with full size photo saved at fullPhotoUri
-
-
         }
     }
 }

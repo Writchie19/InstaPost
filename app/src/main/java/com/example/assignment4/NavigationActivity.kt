@@ -1,3 +1,9 @@
+/*
+William Ritchie
+CS 646
+Assignment 4
+4/18/19
+ */
 package com.example.assignment4
 
 import android.app.Activity
@@ -10,36 +16,34 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import com.google.firebase.FirebaseApp
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_navigation.*
 import java.io.File
 
-const val REQUEST_IMAGE_OPEN = 1
-const val REQUEST_IMAGE_CREATE = 2
-const val POST = 3
+const val POST = 3 // The request code to see the result from the user posting an image
 const val USEREMAIL = "useremail"
 const val HASHTAG = "hashtag"
-class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListener {
-    private val posts = arrayListOf<Post>()
-    private val users = arrayListOf<User>()
-    private val hashtags = arrayListOf<HashTag>()
-    private val userPosts = HashMap<String, ArrayList<Post>>()
-    private val userPostsHashTag = HashMap<String, ArrayList<Post>>()
+
+class NavigationActivity: AppCompatActivity() {
+    private val posts = arrayListOf<Post>() // A List of all posts
+    private val users = arrayListOf<User>() // A list of all users
+    private val hashtags = arrayListOf<HashTag>() // A List of all unique hashtags (no duplicates)
+    private val userPosts = HashMap<String, ArrayList<Post>>() // Maps the posts associated with a specific user (by email)
+    private val userPostsHashTag = HashMap<String, ArrayList<Post>>() // Maps the posts associated with a specific hashtag
     private var currentUserEmail: String? = null
     private var currentUserNickName: String? = null
     private var currentUserName: String? = null
-    private var postAdapter: PostRecycleAdapter? = null
-    private val userAdapter = ListRecycleAdapter(users, userPosts, this)
-    private var hashtagAdapter: ListRecycleAdapter? = null
+    private var postAdapter: PostRecycleAdapter? = null // Used with the recycle view in a fragment to display specific posts
+    private val allPostsAdapter = PostRecycleAdapter(posts, this) // Used with the recycle view in a fragment to display all posts
+    private val userAdapter = ListRecycleAdapter(users, userPosts, this) // Used with the recycle view in a fragment to display a list of all users
+    private var hashtagAdapter: ListRecycleAdapter? = null // User with the recycel view in a fragment to display a list of all hashtags
 
+    // These all load a fragment with the corresponding adapter
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_my_posts -> {
-//                message.setText(R.string.title_home)
-                // Can load a fragment in this section
+                selection.text = currentUserNickName
                 logout.visibility = View.VISIBLE
                 post.visibility = View.VISIBLE
                 @Suppress("UNCHECKED_CAST")
@@ -47,16 +51,15 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_all_posts -> {
-//                message.setText(R.string.title_home)
-                // Can load a fragment in this section
-                logout.visibility = View.VISIBLE
-                post.visibility = View.VISIBLE
+                selection.text = getString(R.string.everyone)
+                logout.visibility = View.INVISIBLE
+                post.visibility = View.INVISIBLE
                 @Suppress("UNCHECKED_CAST")
-                loadFrag(postAdapter as RecyclerView.Adapter<RecyclerView.ViewHolder>)
+                loadFrag(allPostsAdapter as RecyclerView.Adapter<RecyclerView.ViewHolder>)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_users -> {
-//                message.setText(R.string.title_dashboard)
+                selection.text = getString(R.string.list_of_users)
                 logout.visibility = View.INVISIBLE
                 post.visibility = View.INVISIBLE
                 @Suppress("UNCHECKED_CAST")
@@ -64,14 +67,9 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_hashtags -> {
-//                message.setText(R.string.title_notifications)
+                selection.text = getString(R.string.list_of_hashtags)
                 logout.visibility = View.INVISIBLE
                 post.visibility = View.INVISIBLE
-                Log.i("WCR", "HERE")
-                for (item in hashtags) {
-                    Log.i("WCR", "HASHTAGLIST: ${item.getHashTag()}")
-                }
-
                 @Suppress("UNCHECKED_CAST")
                 loadFrag(hashtagAdapter as RecyclerView.Adapter<RecyclerView.ViewHolder>)
                 return@OnNavigationItemSelectedListener true
@@ -80,10 +78,10 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
         false
     }
 
+    // Called when the user clicks the post button
     private fun makePost() {
         val postIntent = Intent(this, PostActivity::class.java)
         postIntent.putExtra("email", currentUserEmail)
-        Log.i("WCR", "NICKNAME  " + currentUserNickName)
         postIntent.putExtra("nickname", currentUserNickName)
         startActivityForResult(postIntent, POST)
     }
@@ -91,16 +89,50 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == POST) {
             if (resultCode == Activity.RESULT_OK) {
-                Log.i("WCR","IMAGEPATH OAR " + data?.extras?.getString("imagePath").toString() )
                 val newPost = Post(currentUserNickName as String, data?.extras?.getString("imagePath").toString(),data?.extras?.getString("description").toString())
+
+                // Handles an edge case where the user has not posted anything yet so the arraylist in the hashmap is actually null
+                if (userPosts[currentUserEmail] == null) {
+                    val userPostList = arrayListOf<Post>()
+                    userPosts[currentUserEmail as String] = userPostList
+                }
                 userPosts[currentUserEmail]?.add(0,newPost)
+                posts.add(0, newPost) // Update all posts with the new post
 
+                // The following code handles updating the hashtag list with possible new hashtags and post associated with them
+                for (hashtag in data?.extras?.getStringArrayList("hashtag") as ArrayList<String>) {
+                    if (hashtags.isNotEmpty()) {
+                        var exists = false // Used to keep track of if a hashtag is already in the list
+                        for (i in  0 until hashtags.size) {
+                            Log.i("WCR", "inner hashtag ${hashtags[i].getHashTag()}")
+                            if (hashtags[i].getHashTag().compareTo(hashtag) == 0) {
+                                exists = true
+                            }
+                        }
 
-                downLoadPostImage(newPost)
-                userposts.postDelayed({
+                        if (!exists) {
+                            hashtags.add(HashTag(hashtag, currentUserEmail as String))
+                            val hashtagPostList = arrayListOf<Post>()
+                            userPostsHashTag[hashtag] = hashtagPostList
+                        }
+                        userPostsHashTag[hashtag]?.add(newPost)
+                    }
+                    else {
+                        hashtags.add(HashTag(hashtag, currentUserEmail as String))
+                        val hashtagPostList = arrayListOf<Post>()
+                        hashtagPostList.add(newPost)
+                        userPostsHashTag[hashtag] = hashtagPostList
+                    }
+                }
+
+                // Post delayed is used here to avoid downloading the image before it is finished being uploaded to firebase
+                // and to prevent updateing the ui until the image downloaded from firebase
+                selection.postDelayed({downLoadPostImage(newPost)},3000)
+                selection.postDelayed({
+                    postAdapter = PostRecycleAdapter(userPosts[currentUserEmail], this)
                     @Suppress("UNCHECKED_CAST")
                     loadFrag(postAdapter as RecyclerView.Adapter<RecyclerView.ViewHolder>)
-                }, 3000)
+                }, 4000)
             }
             else if (resultCode == Activity.RESULT_CANCELED) {
 
@@ -108,13 +140,19 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
         }
     }
 
+    // Get current user info
     private fun getUserInfo(email: String){
         val db = FirebaseFirestore.getInstance()
         db.collection("users").document(email)
             .get()
             .addOnSuccessListener { result ->
+                Log.i("WCR", "Successful getUserInfo")
                 currentUserName = result.data?.get("name").toString()
                 currentUserNickName = result.data?.get("nickname").toString()
+                selection.text = currentUserNickName
+            }
+            .addOnFailureListener {
+                Log.i("WCR", "Fail getUserInfo")
             }
     }
 
@@ -123,25 +161,27 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
         db.collection("users")
             .get()
             .addOnSuccessListener { result ->
+                Log.i("WCR", "SUCCESSFUL USERLIST CONSTRUCTION")
                 for (document in result) {
-                    Log.d("WCR", "${document.id} => ${document.data}")
                     users.add(User(document.data["name"].toString(), document.data["nickname"].toString(), document.data["email"].toString()))
-                    //users.add(document.data["nickname"].toString())
                 }
             }
             .addOnFailureListener { exception ->
-                Log.w("WCR", "Error getting documents.", exception)
+                Log.w("WCR", "Error getting documents in constructUserList", exception)
             }
     }
-// .whereEqualTo(field, filter)
+
     private fun constructPostList() {
         val db = FirebaseFirestore.getInstance()
         db.collection("posts")
             .get()
             .addOnSuccessListener { result ->
+                Log.d("WCR", "Successful constructUserList")
                 for (document in result) {
-                    Log.d("WCR", "${document.id} => ${document.data}")
                     val post = Post(document.data["username"].toString(), document.data["imagePath"].toString(), document.data["description"].toString())
+                    posts.add(post) // Add the new post to all posts list
+
+                    // Handle Specific user posts for the user list
                     if (!userPosts.containsKey(document.data[USEREMAIL].toString())) {
                         val userPostList = arrayListOf<Post>()
                         userPostList.add(post)
@@ -151,18 +191,19 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
                         userPosts[document.data[USEREMAIL].toString()]?.add(post)
                     }
 
+                    // Build hashmap of arraylists of posts, to handle user selecting a hashtag and seeing all relevent posts
                     @Suppress("UNCHECKED_CAST")
                     for (hashtag in document.data[HASHTAG] as ArrayList<String>) {
-                        Log.i("WCR", "hastag: $hashtag")
+                        // Checking for blank hashtag handles edge case where hashtag is the empty string
                         if (hashtag.isNotBlank()) {
                             if (hashtags.isNotEmpty()) {
-                                var exists = false
+                                var exists = false // Used to determine if the arraylist already contains the hashtag
                                 for (i in  0 until hashtags.size) {
-                                    Log.i("WCR", "inner hashtag ${hashtags[i].getHashTag()}")
                                     if (hashtags[i].getHashTag().compareTo(hashtag) == 0) {
                                         exists = true
                                     }
                                 }
+
                                 if (!exists) {
                                     hashtags.add(HashTag(hashtag, document.data[USEREMAIL].toString()))
                                     val hashtagPostList = arrayListOf<Post>()
@@ -182,11 +223,12 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
                 }
             }
             .addOnFailureListener { exception ->
-                Log.w("WCR", "Error getting documents.", exception)
+                Log.w("WCR", "Error getting documents. in constructUserList", exception)
             }
             .addOnCompleteListener {
-                userposts.postDelayed({
-                    postAdapter = PostRecycleAdapter(userPosts[currentUserEmail] as ArrayList<Post>, this)
+                // Use post delayed to avoid updating the UI before the necessary post images are finished downloading
+                selection.postDelayed({
+                    postAdapter = PostRecycleAdapter(userPosts[currentUserEmail], this)
                     hashtagAdapter = ListRecycleAdapter(hashtags, userPostsHashTag, this)
                     @Suppress("UNCHECKED_CAST")
                     loadFrag(postAdapter as RecyclerView.Adapter<RecyclerView.ViewHolder>)
@@ -194,6 +236,7 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
             }
     }
 
+    // Replaces the current fragment with a new one, note this does not add backstack
     fun loadFrag(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>) {
         val fragments = supportFragmentManager
         val fragmentTransaction = fragments.beginTransaction()
@@ -210,11 +253,11 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
         post.setImageUri(Uri.fromFile(localFile))
         imageRef.getFile(localFile)
             .addOnSuccessListener{ taskSnapshot ->
-                Log.i("WCR", "BYTES" + taskSnapshot.bytesTransferred.toString())
+                Log.i("WCR", "Success in downloadpostimage")
 
             }
             .addOnFailureListener{
-                Log.i("WCR", "FAIL")
+                Log.i("WCR", "FAIL in downloadpostimage")
             }
     }
 
@@ -222,7 +265,7 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
         FirebaseApp.initializeApp(this)
-        currentUserEmail = intent.extras?.getString("email").toString()
+        currentUserEmail = intent.extras?.getString("email").toString() // Passed in from the main login activity
         getUserInfo(currentUserEmail as String)
         constructUserList()
         constructPostList()
@@ -232,15 +275,5 @@ class NavigationActivity: AppCompatActivity(), DatabaseReference.CompletionListe
             finish()
         }
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-    }
-
-
-    override fun onComplete(error: DatabaseError?, db: DatabaseReference) {
-        if (error == null)
-        // no error database received data
-            Log.i("WCR", "Success!")
-        else {
-            Log.e("WCR", error.getMessage())
-        }
     }
 }

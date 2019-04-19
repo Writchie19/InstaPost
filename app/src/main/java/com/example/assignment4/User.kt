@@ -1,8 +1,15 @@
+/*
+William Ritchie
+CS 646
+Assignment 4
+4/18/19
+ */
 package com.example.assignment4
 
+// This is the interface implemented by User and Hashtag classes to allow both objects to be used by ListRecycler Adapter and Holder
 interface PostInfo {
-    fun getItem():String
-    fun getUniqueIdentifier():String
+    fun getItem():String // Should be used to update some sort of display information
+    fun getUniqueIdentifier():String // Should be used to access a specific subset of posts
 }
 
 class User: PostInfo{

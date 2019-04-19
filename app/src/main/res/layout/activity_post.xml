@@ -18,7 +18,7 @@
                 android:layout_height="wrap_content" android:id="@+id/nicknameView" android:layout_marginStart="75dp"/>
         <ImageView
                 android:layout_width="251dp"
-                android:layout_height="233dp" app:srcCompat="@android:color/darker_gray"
+                android:layout_height="233dp" app:srcCompat="@android:drawable/ic_menu_gallery"
                 android:id="@+id/imageView" android:layout_marginStart="75dp"
                 android:contentDescription="@string/users_post_images"/>
         <TextView
